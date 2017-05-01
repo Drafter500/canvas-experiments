@@ -30,12 +30,21 @@ function ready() {
       this.y = y;
     }
 
+    accelerateY(acceleration) {
+      this.vy += acceleration;
+    }
+
     bounceX(speedAbsorption) {
       this.vx = getSpeedAfterBounce(this.vx, speedAbsorption);
     }
 
     bounceY(speedAbsorption) {
       this.vy = getSpeedAfterBounce(this.vy, speedAbsorption);
+      this.vx *= speedAbsorption;
+
+      if (Math.abs(this.vy) < 0.01) {
+        this.vy = 0;
+      }
     }
 
     draw() {
@@ -61,23 +70,16 @@ function ready() {
 
     if (ball.y + ball.vy + ball.radius > canvas.height ||
             ball.y + ball.vy < 0) {
-      ball.vy = -ball.vy;
-      ball.vy *= env.fadey;
-      ball.vx *= env.fadey;
-
-      if (Math.abs(ball.vy) < 0.001) {
-        ball.vy = 0;
-      }
+      ball.bounceY(env.fadey);
 
       statusPanel.innerHTML = `vy = ${Math.abs(ball.vy)}`;
     } else {
-      ball.vy += env.ay;
+      ball.accelerateY(env.ay);
     }
 
     if (ball.x + ball.vx + ball.radius > canvas.width ||
             ball.x + ball.vx - ball.radius < 0) {
-      ball.vx *= env.fadey;
-      ball.vx = -ball.vx;
+      ball.bounceX(env.fadey);
     }
 
     raf = window.requestAnimationFrame(draw);
